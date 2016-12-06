@@ -24,6 +24,8 @@ import cc.holstr.imLoad2.gui.work.UploadTask;
 
 public class Window extends JFrame implements ComponentListener, FocusListener{
 
+	private final static String API_KEY = "NOT_FOR_GITHUB";
+	
 	private String loadedKey;
 	
 	private ScreenRegionDisplayPane region; 
@@ -40,12 +42,15 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 	
 	private JMenu fileMenu;
 	private JMenu uploadMenu;
+	private JMenu saveMenu;
 	
 	private JMenuItem showHistoryMenuItem;
 	private JMenuItem customAPIKeyMenuItem;
 	private JMenuItem quitMenuItem; 
 	
 	private JMenuItem uploadToImgurMenuItem;
+	
+	private JMenuItem saveToFileMenuItem;
 	
 	public Window() {
 		super();
@@ -59,12 +64,15 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 		
 		fileMenu = new JMenu("File");
 		uploadMenu = new JMenu("Upload");
+		saveMenu = new JMenu("Save");
 		
 		showHistoryMenuItem = new JMenuItem("Show Upload History...");
 		customAPIKeyMenuItem = new JMenuItem("Use Custom API Key...");
 		quitMenuItem = new JMenuItem("Quit");
 		
 		uploadToImgurMenuItem = new JMenuItem("Upload to Imgur...");
+		
+		saveToFileMenuItem = new JMenuItem("Save to File...");
 		
 		capture = new JButton("Capture");
 		upload = new JButton("Upload");
@@ -79,12 +87,15 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 		//menu layout
 		bar.add(fileMenu);
 		bar.add(uploadMenu);
+		bar.add(saveMenu);
 		
 		fileMenu.add(showHistoryMenuItem);
 		fileMenu.add(customAPIKeyMenuItem);
 		fileMenu.add(quitMenuItem);
 		
 		uploadMenu.add(uploadToImgurMenuItem);
+		
+		saveMenu.add(saveToFileMenuItem);
 		
 		//main layout
 		region = new ScreenRegionDisplayPane(this);
@@ -154,9 +165,9 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 	public void upload() {
 		String key; 
 		if(loadedKey==null) {
-			key = "57d9fa6227f7442";
+			key = API_KEY;
 		} else if(loadedKey.equals("reset")) { 
-			key = "57d9fa6227f7442";
+			key = API_KEY;
 		} else {
 			key = loadedKey;
 		}
