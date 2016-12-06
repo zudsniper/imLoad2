@@ -19,11 +19,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import cc.holstr.imLoad2.gui.model.ScaleImageWindow;
 import cc.holstr.imLoad2.gui.model.ScreenRegionDisplayPane;
 import cc.holstr.imLoad2.gui.work.UploadTask;
 
 public class Window extends JFrame implements ComponentListener, FocusListener{
 
+	public static boolean debug = false;
+	
 	private final static String API_KEY = "NOT_FOR_GITHUB";
 	
 	private String loadedKey;
@@ -82,6 +85,7 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 		
 		upload.setEnabled(false);
 		uploadToImgurMenuItem.setEnabled(false);
+		saveToFileMenuItem.setEnabled(false);
 		linkField.setEditable(false);
 		
 		//menu layout
@@ -99,6 +103,11 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 		
 		//main layout
 		region = new ScreenRegionDisplayPane(this);
+		
+		if(Window.debug) {
+			region.setSleepDuration(Long.parseLong(JOptionPane.showInputDialog(this,"Enter sleep long (millis)")));
+		}
+		
 		bottomBar = new JPanel(new BorderLayout());
 		buttonBar = new JPanel();
 		buttonBar.setLayout(new GridLayout(1,3));
@@ -146,6 +155,14 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 			
 		});
 		
+		saveToFileMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				save();
+				
+			}
+		});
+		
 		//action handling
 		capture.addActionListener(new ActionListener() {
 			@Override
@@ -154,6 +171,7 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 				capture.setEnabled(false);
 				upload.setEnabled(true);
 				uploadToImgurMenuItem.setEnabled(true);
+				saveToFileMenuItem.setEnabled(true);
 				
 			}
 		});
@@ -166,6 +184,7 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 				capture.setEnabled(true);
 				upload.setEnabled(false);
 				uploadToImgurMenuItem.setEnabled(false);
+				saveToFileMenuItem.setEnabled(false);
 			}
 		});
 		
@@ -205,6 +224,10 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 		new UploadTask(key, region.getCapturedImage(),reload,linkField,region).execute();
 		region.updateFullScreen();
 		
+	}
+	
+	public void save() {
+		new ScaleImageWindow(region.getCapturedImage());
 	}
 	
 	public String getLinkText() {

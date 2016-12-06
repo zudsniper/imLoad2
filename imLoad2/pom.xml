@@ -4,7 +4,7 @@
 
   <groupId>cc.holstr</groupId>
   <artifactId>imLoad2</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>0.0.3-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>imLoad2</name>
@@ -57,6 +57,12 @@
   </build>
 
   <dependencies>
+  <!-- https://mvnrepository.com/artifact/org.imgscalr/imgscalr-lib -->
+	<dependency>
+	    <groupId>org.imgscalr</groupId>
+	    <artifactId>imgscalr-lib</artifactId>
+	    <version>4.2</version>
+	</dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

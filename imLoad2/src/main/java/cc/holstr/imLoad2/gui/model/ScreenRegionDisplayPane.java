@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 
 import cc.holstr.imLoad2.App;
 import cc.holstr.imLoad2.gui.Window;
+import cc.holstr.imLoad2.properties.Unpacker;
 
 public class ScreenRegionDisplayPane extends JPanel{
 	
@@ -35,10 +36,19 @@ public class ScreenRegionDisplayPane extends JPanel{
 	
     final Dimension screenSize;
     
-    private boolean captured;
+    public long sleepDuration = 175;
+
+	private boolean captured;
     
 	public ScreenRegionDisplayPane(Window parentFrame) {
 		super();
+		if(Unpacker.os.contains("Mac")) {
+			setSleepDuration(50);
+		} else if(Unpacker.os.contains("Windows")) {
+			setSleepDuration(175);
+		} else {
+			setSleepDuration(100);
+		}
 		capturedLabel = new JLabel("");
 		capturedLabel.setForeground(Color.white);
 		add(capturedLabel);
@@ -89,6 +99,11 @@ public class ScreenRegionDisplayPane extends JPanel{
 		Dimension beforeSize = parentFrame.getSize();
 		String linkText = parentFrame.getLinkText();
 		parentFrame.dispose();
+		try {
+			Thread.sleep(getSleepDuration());
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		setFullscreen(rob.createScreenCapture(new Rectangle(screenSize)));
 		parentFrame.pack();
 		parentFrame.setSize(beforeSize);
@@ -134,6 +149,14 @@ public class ScreenRegionDisplayPane extends JPanel{
 	    		g.drawImage(capturedImage, 0, 0, null);
 	    	}
 	    	
+	}
+	
+	public long getSleepDuration() {
+		return sleepDuration;
+	}
+
+	public void setSleepDuration(long sleepDuration) {
+		this.sleepDuration = sleepDuration;
 	}
 	
 }
