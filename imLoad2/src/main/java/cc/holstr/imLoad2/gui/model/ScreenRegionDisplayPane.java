@@ -14,6 +14,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import cc.holstr.imLoad2.App;
+import cc.holstr.imLoad2.gui.Window;
+
 public class ScreenRegionDisplayPane extends JPanel{
 	
 	/**
@@ -21,11 +24,10 @@ public class ScreenRegionDisplayPane extends JPanel{
 	 */
 	private static final long serialVersionUID = 7774204225765298821L;
 
-	private JFrame parentFrame;
+	private Window parentFrame;
 	
 	private JLabel capturedLabel;
 	
-	private BufferedImage fullscreenDuringSave;
 	private BufferedImage fullscreen;
 	private BufferedImage capturedImage;
 	
@@ -35,7 +37,7 @@ public class ScreenRegionDisplayPane extends JPanel{
     
     private boolean captured;
     
-	public ScreenRegionDisplayPane(JFrame parentFrame) {
+	public ScreenRegionDisplayPane(Window parentFrame) {
 		super();
 		capturedLabel = new JLabel("");
 		capturedLabel.setForeground(Color.white);
@@ -76,17 +78,29 @@ public class ScreenRegionDisplayPane extends JPanel{
 		setFullscreen(rob.createScreenCapture(new Rectangle(screenSize)));
 	}
 	
+	public void updateFullScreenLocationally() {
+		Point location = parentFrame.getLocationOnScreen();
+		parentFrame.setLocation(Integer.MAX_VALUE, Integer.MAX_VALUE);
+		updateFullScreenSoftly();
+		parentFrame.setLocation(location);
+	}
+	
 	public void updateFullScreen() {
-		parentFrame.setVisible(false);
+		Dimension beforeSize = parentFrame.getSize();
+		String linkText = parentFrame.getLinkText();
+		parentFrame.dispose();
 		setFullscreen(rob.createScreenCapture(new Rectangle(screenSize)));
+		parentFrame.pack();
+		parentFrame.setSize(beforeSize);
+		parentFrame.setLinkText(linkText);
 		parentFrame.setVisible(true);
 	}
 	
-	public JFrame getParentFrame() {
+	public Window getParentFrame() {
 		return parentFrame;
 	}
 
-	public void setParentFrame(JFrame parentFrame) {
+	public void setParentFrame(Window parentFrame) {
 		this.parentFrame = parentFrame;
 	}
 
