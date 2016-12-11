@@ -43,7 +43,7 @@ public class ScreenRegionDisplayPane extends JPanel{
 	public ScreenRegionDisplayPane(Window parentFrame) {
 		super();
 		if(Unpacker.os.contains("Mac")) {
-			setSleepDuration(50);
+			setSleepDuration(25);
 		} else if(Unpacker.os.contains("Windows")) {
 			setSleepDuration(175);
 		} else {
@@ -96,19 +96,20 @@ public class ScreenRegionDisplayPane extends JPanel{
 	}
 	
 	public void updateFullScreen() {
-		Dimension beforeSize = parentFrame.getSize();
-		String linkText = parentFrame.getLinkText();
-		parentFrame.dispose();
+//		Dimension beforeSize = parentFrame.getSize();
+//		String linkText = parentFrame.getLinkText();
+//		parentFrame.dispose();
+		parentFrame.setVisible(false);
 		try {
 			Thread.sleep(getSleepDuration());
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		setFullscreen(rob.createScreenCapture(new Rectangle(screenSize)));
-		parentFrame.pack();
-		parentFrame.setSize(beforeSize);
-		parentFrame.setLinkText(linkText);
 		parentFrame.setVisible(true);
+//		parentFrame.pack();
+//		parentFrame.setSize(beforeSize);
+//		parentFrame.setLinkText(linkText);
 	}
 	
 	public Window getParentFrame() {

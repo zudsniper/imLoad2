@@ -73,7 +73,7 @@ public class ScaleImageWindow extends JFrame implements ActionListener{
 		
 		setLocationRelativeTo(null);
 		setSize(200,100);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setVisible(true);
 	}
 
@@ -86,12 +86,18 @@ public class ScaleImageWindow extends JFrame implements ActionListener{
 			width = Integer.parseInt(scaleWidthTextField.getText()); 
 			height = Integer.parseInt(scaleHeightTextField.getText());
 			} catch(NumberFormatException nfe) {
-				JOptionPane.showMessageDialog(this,"Please enter valid dimensions.");
+				JOptionPane.showMessageDialog(this,"Extensions " +scaleWidthTextField.getText() + " and " + scaleHeightTextField.getText() +" are not valid.");
 			}
-			File output = makeFileChooser(System.getProperty("user.home")+System.getProperty("file.separator")+"Desktop");
+			File output = makeFileChooser(null);
 			try {
-				
-				ImageIO.write(Scalr.resize(image,width,height,Scalr.OP_ANTIALIAS),"png",output);
+				if(output!=null) {
+					if(!output.isDirectory()) {
+						ImageIO.write(Scalr.resize(image,width,height,Scalr.OP_ANTIALIAS),"png",output);
+						JOptionPane.showConfirmDialog(this, "Image saved to " + output.getName() + "\nat " + output.getParent());
+					} else {
+						JOptionPane.showConfirmDialog(this, "Cannot save to " + output.getAbsolutePath());
+					}
+				} 
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -101,8 +107,11 @@ public class ScaleImageWindow extends JFrame implements ActionListener{
 	}
 	
 	public File makeFileChooser(String startingDir) {
+		File startFile = null;
+		if(!(startingDir==null)) {
+			startFile = new File(startingDir);
+		}
 		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		File startFile = new File(startingDir);
 		fc.setAcceptAllFileFilterUsed(false);
 		fc.addChoosableFileFilter(new FileFilter() {
 
@@ -123,13 +132,15 @@ public class ScaleImageWindow extends JFrame implements ActionListener{
 			}
 			
 		});
+		if(!(startingDir==null)) {
 		fc.setSelectedFile(startFile);
+		}
 		File file = null;
 		int returnVal = fc.showSaveDialog(this);
 		if(returnVal==JFileChooser.APPROVE_OPTION) {
 			file = fc.getSelectedFile();
 		} else if(returnVal==JFileChooser.CANCEL_OPTION) {
-			file = startFile;
+//			file = startFile;
 		}
 		return file;
 	}
