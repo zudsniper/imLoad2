@@ -9,12 +9,12 @@ import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import cc.holstr.imLoad2.App;
 import cc.holstr.imLoad2.gui.Window;
 import cc.holstr.imLoad2.properties.Unpacker;
 
@@ -25,12 +25,15 @@ public class ScreenRegionDisplayPane extends JPanel{
 	 */
 	private static final long serialVersionUID = 7774204225765298821L;
 
+	private boolean giffing = false;
+	
 	private Window parentFrame;
 	
 	private JLabel capturedLabel;
 	
 	private BufferedImage fullscreen;
 	private BufferedImage capturedImage;
+	private List<BufferedImage> imgs; 
 	
 	private Robot rob; 
 	
@@ -60,6 +63,17 @@ public class ScreenRegionDisplayPane extends JPanel{
 		screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		setParentFrame(parentFrame);
 		updateFullScreen();
+	}
+	
+	public void startGif() {
+		imgs = new ArrayList<BufferedImage>();
+		giffing = true;
+		
+		
+	}
+	
+	public void stopGif() {
+		giffing = false;
 	}
 	
 	public BufferedImage capture() {
@@ -144,11 +158,11 @@ public class ScreenRegionDisplayPane extends JPanel{
 	  protected void paintComponent(Graphics g) {
 
 	    super.paintComponent(g);
-	    	if(!isCaptured()) {
-	    		g.drawImage(getRegionOver(), 0, 0, null);
-	    	} else {
-	    		g.drawImage(capturedImage, 0, 0, null);
-	    	}
+		    	if(!isCaptured()) {
+		    		g.drawImage(getRegionOver(), 0, 0, null);
+		    	} else {
+		    		g.drawImage(capturedImage, 0, 0, null);
+		    	} 
 	    	
 	}
 	
@@ -158,6 +172,10 @@ public class ScreenRegionDisplayPane extends JPanel{
 
 	public void setSleepDuration(long sleepDuration) {
 		this.sleepDuration = sleepDuration;
+	}
+	
+	public boolean isGiffing() {
+		return giffing;
 	}
 	
 }

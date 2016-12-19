@@ -26,6 +26,7 @@ import cc.holstr.imLoad2.gui.work.UploadTask;
 public class Window extends JFrame implements ComponentListener, FocusListener{
 
 	public static boolean debug = false;
+	public static boolean gifMode = false;
 	
 	private final static String API_KEY = "NOT_FOR_GITHUB";
 	
@@ -44,9 +45,11 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 	private JMenuBar bar; 
 	
 	private JMenu fileMenu;
+	private JMenu movieMenu; 
 	private JMenu uploadMenu;
 	private JMenu saveMenu;
 	
+	private JMenuItem makeGifMenuItem;
 	private JMenuItem showHistoryMenuItem;
 	private JMenuItem customAPIKeyMenuItem;
 	private JMenuItem quitMenuItem; 
@@ -66,9 +69,11 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 		bar = new JMenuBar();
 		
 		fileMenu = new JMenu("File");
+		movieMenu = new JMenu("Movie");
 		uploadMenu = new JMenu("Upload");
 		saveMenu = new JMenu("Save");
 		
+		makeGifMenuItem = new JMenuItem("Make Gif...");
 		showHistoryMenuItem = new JMenuItem("Show Upload History...");
 		customAPIKeyMenuItem = new JMenuItem("Use Custom API Key...");
 		quitMenuItem = new JMenuItem("Quit");
@@ -90,12 +95,15 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 		
 		//menu layout
 		bar.add(fileMenu);
+		bar.add(movieMenu);
 		bar.add(uploadMenu);
 		bar.add(saveMenu);
 		
 		fileMenu.add(showHistoryMenuItem);
 		fileMenu.add(customAPIKeyMenuItem);
 		fileMenu.add(quitMenuItem);
+		
+		movieMenu.add(makeGifMenuItem);
 		
 		uploadMenu.add(uploadToImgurMenuItem);
 		
@@ -145,8 +153,14 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 			
 		});
 		
+		makeGifMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				makeGif();
+			}
+		});
+		
 		uploadToImgurMenuItem.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				upload();
@@ -167,11 +181,28 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 		capture.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				boolean gifMode = capture.getText().equals("Record");
+				if(!gifMode) {
 				region.capture();
 				capture.setEnabled(false);
 				upload.setEnabled(true);
 				uploadToImgurMenuItem.setEnabled(true);
 				saveToFileMenuItem.setEnabled(true);
+				setResizable(true);
+				} else {
+					upload.setEnabled(false);
+					uploadToImgurMenuItem.setEnabled(false);
+					saveToFileMenuItem.setEnabled(false);
+				if(region.isGiffing()) {
+					capture.setText("Stop");
+					setResizable(false);
+					region.startGif();
+				} else {
+					capture.setText("Record");
+					setResizable(true);
+					region.stopGif();
+				}
+				}
 				
 			}
 		});
@@ -180,11 +211,7 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				region.reset();
-				capture.setEnabled(true);
-				upload.setEnabled(false);
-				uploadToImgurMenuItem.setEnabled(false);
-				saveToFileMenuItem.setEnabled(false);
+				reset();
 			}
 		});
 		
@@ -212,6 +239,16 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 		return this;
 	}
 
+	public void makeGif() {
+		if(!gifMode) {
+		makeGifMenuItem.setText("Stop Making Gif...");
+		capture.setText("Record");
+		} else {
+			makeGifMenuItem.setText("Make Gif...");
+			capture.setText("Capture");
+		}
+	}
+	
 	public void upload() {
 		String key; 
 		if(loadedKey==null) {
@@ -228,6 +265,15 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 	
 	public void save() {
 		new ScaleImageWindow(region.getCapturedImage());
+	}
+	
+	public void reset() {
+		region.reset();
+		capture.setText("Capture");
+		capture.setEnabled(true);
+		upload.setEnabled(false);
+		uploadToImgurMenuItem.setEnabled(false);
+		saveToFileMenuItem.setEnabled(false);
 	}
 	
 	public String getLinkText() {

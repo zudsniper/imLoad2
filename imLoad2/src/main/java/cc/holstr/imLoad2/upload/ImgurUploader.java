@@ -41,7 +41,7 @@ public class ImgurUploader {
 		System.out.println(temp);
 		temp = temp.substring(temp.indexOf("\"id\"")+6);
 		String id = temp.substring(0, temp.indexOf("\",\""));
-		photoUrl = "http://i.imgur.com/"+id;
+		photoUrl = "http://i.imgur.com/"+id+".png";
 		}
 		//clipboard.setContents(new StringSelection(photoUrl),null);
 		
