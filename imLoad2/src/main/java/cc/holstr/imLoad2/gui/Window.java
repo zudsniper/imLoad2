@@ -3,8 +3,8 @@ package cc.holstr.imLoad2.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
@@ -19,11 +19,16 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import cc.holstr.imLoad2.gui.model.ScaleImageWindow;
 import cc.holstr.imLoad2.gui.model.ScreenRegionDisplayPane;
 import cc.holstr.imLoad2.gui.work.UploadTask;
 
 public class Window extends JFrame implements ComponentListener, FocusListener{
 
+	public static boolean debug = false;
+	
+	private final static String API_KEY = "NOT_FOR_GITHUB";
+	
 	private String loadedKey;
 	
 	private ScreenRegionDisplayPane region; 
@@ -40,6 +45,7 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 	
 	private JMenu fileMenu;
 	private JMenu uploadMenu;
+	private JMenu saveMenu;
 	
 	private JMenuItem showHistoryMenuItem;
 	private JMenuItem customAPIKeyMenuItem;
@@ -47,24 +53,29 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 	
 	private JMenuItem uploadToImgurMenuItem;
 	
+	private JMenuItem saveToFileMenuItem;
+	
 	public Window() {
 		super();
 		build();
 	}
 	
-	public void build() {
+	public Window build() {
 		setLayout(new BorderLayout());
 		
 		bar = new JMenuBar();
 		
 		fileMenu = new JMenu("File");
 		uploadMenu = new JMenu("Upload");
+		saveMenu = new JMenu("Save");
 		
 		showHistoryMenuItem = new JMenuItem("Show Upload History...");
 		customAPIKeyMenuItem = new JMenuItem("Use Custom API Key...");
 		quitMenuItem = new JMenuItem("Quit");
 		
 		uploadToImgurMenuItem = new JMenuItem("Upload to Imgur...");
+		
+		saveToFileMenuItem = new JMenuItem("Save to File...");
 		
 		capture = new JButton("Capture");
 		upload = new JButton("Upload");
@@ -74,11 +85,13 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 		
 		upload.setEnabled(false);
 		uploadToImgurMenuItem.setEnabled(false);
+		saveToFileMenuItem.setEnabled(false);
 		linkField.setEditable(false);
 		
 		//menu layout
 		bar.add(fileMenu);
 		bar.add(uploadMenu);
+		bar.add(saveMenu);
 		
 		fileMenu.add(showHistoryMenuItem);
 		fileMenu.add(customAPIKeyMenuItem);
@@ -86,8 +99,15 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 		
 		uploadMenu.add(uploadToImgurMenuItem);
 		
+		saveMenu.add(saveToFileMenuItem);
+		
 		//main layout
 		region = new ScreenRegionDisplayPane(this);
+		
+		if(Window.debug) {
+			region.setSleepDuration(Long.parseLong(JOptionPane.showInputDialog(this,"Enter sleep long (millis)")));
+		}
+		
 		bottomBar = new JPanel(new BorderLayout());
 		buttonBar = new JPanel();
 		buttonBar.setLayout(new GridLayout(1,3));
@@ -107,35 +127,74 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 		
 		//menu action handling
 		
-		customAPIKeyMenuItem.addActionListener((ActionEvent e) -> {
-			loadedKey = JOptionPane.showInputDialog(this, "Enter API key. (Enter \"reset\" to set to default.)");
+		customAPIKeyMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				loadedKey = JOptionPane.showInputDialog(this, "Enter API key. (Enter \"reset\" to set to default.)");
+				
+			}
 		});
 		
-		quitMenuItem.addActionListener((ActionEvent e) -> {
-			System.exit(0);
+		quitMenuItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+				
+			}
+			
 		});
 		
-		uploadToImgurMenuItem.addActionListener((ActionEvent e) -> {
-			upload();
+		uploadToImgurMenuItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				upload();
+				
+			}
+			
+		});
+		
+		saveToFileMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				save();
+				
+			}
 		});
 		
 		//action handling
-		capture.addActionListener((ActionEvent e)->{
-			region.capture();
-			capture.setEnabled(false);
-			upload.setEnabled(true);
-			uploadToImgurMenuItem.setEnabled(true);
+		capture.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				region.capture();
+				capture.setEnabled(false);
+				upload.setEnabled(true);
+				uploadToImgurMenuItem.setEnabled(true);
+				saveToFileMenuItem.setEnabled(true);
+				
+			}
 		});
 		
-		reload.addActionListener((ActionEvent e) -> {
-			region.reset();
-			capture.setEnabled(true);
-			upload.setEnabled(false);
-			uploadToImgurMenuItem.setEnabled(false);
+		reload.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				region.reset();
+				capture.setEnabled(true);
+				upload.setEnabled(false);
+				uploadToImgurMenuItem.setEnabled(false);
+				saveToFileMenuItem.setEnabled(false);
+			}
 		});
 		
-		upload.addActionListener((ActionEvent e) -> {
-			upload();
+		upload.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				upload();
+				
+			}
 		});
 		
 		//housekeeping
@@ -149,20 +208,34 @@ public class Window extends JFrame implements ComponentListener, FocusListener{
 		setVisible(true);
 		setSize(new Dimension(400,250));
 		setMinimumSize(new Dimension(200,125));
+		
+		return this;
 	}
 
 	public void upload() {
 		String key; 
 		if(loadedKey==null) {
-			key = "57d9fa6227f7442";
+			key = API_KEY;
 		} else if(loadedKey.equals("reset")) { 
-			key = "57d9fa6227f7442";
+			key = API_KEY;
 		} else {
 			key = loadedKey;
 		}
 		new UploadTask(key, region.getCapturedImage(),reload,linkField,region).execute();
 		region.updateFullScreen();
 		
+	}
+	
+	public void save() {
+		new ScaleImageWindow(region.getCapturedImage());
+	}
+	
+	public String getLinkText() {
+		return linkField.getText();
+	}
+	
+	public void setLinkText(String text) {
+		linkField.setText(text);
 	}
 	
 	@Override

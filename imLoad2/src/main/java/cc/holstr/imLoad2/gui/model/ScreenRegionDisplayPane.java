@@ -14,6 +14,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import cc.holstr.imLoad2.App;
+import cc.holstr.imLoad2.gui.Window;
+import cc.holstr.imLoad2.properties.Unpacker;
+
 public class ScreenRegionDisplayPane extends JPanel{
 	
 	/**
@@ -21,11 +25,10 @@ public class ScreenRegionDisplayPane extends JPanel{
 	 */
 	private static final long serialVersionUID = 7774204225765298821L;
 
-	private JFrame parentFrame;
+	private Window parentFrame;
 	
 	private JLabel capturedLabel;
 	
-	private BufferedImage fullscreenDuringSave;
 	private BufferedImage fullscreen;
 	private BufferedImage capturedImage;
 	
@@ -33,10 +36,19 @@ public class ScreenRegionDisplayPane extends JPanel{
 	
     final Dimension screenSize;
     
-    private boolean captured;
+    public long sleepDuration = 175;
+
+	private boolean captured;
     
-	public ScreenRegionDisplayPane(JFrame parentFrame) {
+	public ScreenRegionDisplayPane(Window parentFrame) {
 		super();
+		if(Unpacker.os.contains("Mac")) {
+			setSleepDuration(25);
+		} else if(Unpacker.os.contains("Windows")) {
+			setSleepDuration(175);
+		} else {
+			setSleepDuration(100);
+		}
 		capturedLabel = new JLabel("");
 		capturedLabel.setForeground(Color.white);
 		add(capturedLabel);
@@ -76,17 +88,35 @@ public class ScreenRegionDisplayPane extends JPanel{
 		setFullscreen(rob.createScreenCapture(new Rectangle(screenSize)));
 	}
 	
-	public void updateFullScreen() {
-		parentFrame.setVisible(false);
-		setFullscreen(rob.createScreenCapture(new Rectangle(screenSize)));
-		parentFrame.setVisible(true);
+	public void updateFullScreenLocationally() {
+		Point location = parentFrame.getLocationOnScreen();
+		parentFrame.setLocation(Integer.MAX_VALUE, Integer.MAX_VALUE);
+		updateFullScreenSoftly();
+		parentFrame.setLocation(location);
 	}
 	
-	public JFrame getParentFrame() {
+	public void updateFullScreen() {
+//		Dimension beforeSize = parentFrame.getSize();
+//		String linkText = parentFrame.getLinkText();
+//		parentFrame.dispose();
+		parentFrame.setVisible(false);
+		try {
+			Thread.sleep(getSleepDuration());
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		setFullscreen(rob.createScreenCapture(new Rectangle(screenSize)));
+		parentFrame.setVisible(true);
+//		parentFrame.pack();
+//		parentFrame.setSize(beforeSize);
+//		parentFrame.setLinkText(linkText);
+	}
+	
+	public Window getParentFrame() {
 		return parentFrame;
 	}
 
-	public void setParentFrame(JFrame parentFrame) {
+	public void setParentFrame(Window parentFrame) {
 		this.parentFrame = parentFrame;
 	}
 
@@ -120,6 +150,14 @@ public class ScreenRegionDisplayPane extends JPanel{
 	    		g.drawImage(capturedImage, 0, 0, null);
 	    	}
 	    	
+	}
+	
+	public long getSleepDuration() {
+		return sleepDuration;
+	}
+
+	public void setSleepDuration(long sleepDuration) {
+		this.sleepDuration = sleepDuration;
 	}
 	
 }
